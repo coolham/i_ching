@@ -120,17 +120,32 @@ class Tab8Trigrams(QWidget):
 
     def setup_image_to_name_question(self):
         self.question_label.setText("请选择下面卦象的正确名称：")
-        diagram = TrigramDiagram(self.current_trigram)
-        diagram.setFixedSize(100, 100)  # 设置固定大小
-        self.question_label.setLayout(QVBoxLayout())
-        self.question_label.layout().addWidget(diagram, alignment=Qt.AlignmentFlag.AlignCenter)
         
+        # 创建一个新的 QWidget 来容纳卦象图和问题文本
+        question_widget = QWidget()
+        question_layout = QVBoxLayout(question_widget)
+        
+        # 添加卦象图
+        diagram = TrigramDiagram(self.current_trigram)
+        diagram.setFixedSize(100, 100)
+        question_layout.addWidget(diagram, alignment=Qt.AlignmentFlag.AlignCenter)
+        
+        # 添加问题文本
+        question_text = QLabel("这个卦象的名称是？")
+        question_text.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        question_text.setFont(QFont("Arial", 14))
+        question_layout.addWidget(question_text)
+        
+        # 将问题部件添加到主布局
+        self.layout().insertWidget(1, question_widget)  # Insert after mode selection
+        
+        # 创建答案按钮
         options = random.sample(self.trigrams, 8)
         for i, trigram in enumerate(options):
-            button = QPushButton(trigram.name)
-            button.setFixedSize(120, 60)  # 设置固定大小
+            button = QPushButton(f"{trigram.name} ({trigram.nature})")
+            button.setFixedSize(150, 60)  # 增加按钮大小以容纳更多文本
             font = QFont()
-            font.setPointSize(12)  # 增大按钮文字大小
+            font.setPointSize(12)
             button.setFont(font)
             button.clicked.connect(lambda checked, t=trigram: self.check_answer(t))
             self.answer_layout.addWidget(button, i // 4, i % 4)
@@ -139,7 +154,7 @@ class Tab8Trigrams(QWidget):
         if selected_trigram.binary == self.current_trigram.binary:
             self.result_label.setText("回答正确！")
         else:
-            self.result_label.setText(f"回答错误。正确答案是：{self.current_trigram.name}")
+            self.result_label.setText(f"回答错误。正确答案是：{self.current_trigram.name} ({self.current_trigram.nature})")
 
     def clear_layout(self, layout):
         while layout.count():

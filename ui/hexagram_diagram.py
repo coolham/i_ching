@@ -29,7 +29,7 @@ class HexagramDiagram(QWidget):
         x_start = width * 0.1
 
         binary = self.hexagram.binary
-        for i, bit in enumerate(reversed(binary)):
+        for i, bit in enumerate(binary):  # 移除 reversed
             y = height - (i + 1) * (line_height + gap) - line_height
             if bit == '1':  # 阳爻
                 painter.setBrush(QBrush(self.yang_color))
@@ -73,7 +73,7 @@ class HexagramDiagram(QWidget):
         x_start = width * 0.1
 
         binary = self.hexagram.binary
-        for i, bit in enumerate(reversed(binary)):
+        for i, bit in enumerate(binary):  # 移除 reversed
             y = height - (i + 1) * (line_height + gap) - line_height
             if bit == '1':  # 阳爻
                 painter.setBrush(QBrush(self.yang_color))
