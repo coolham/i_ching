@@ -1,54 +1,60 @@
 import sys
 import os
+import random
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QComboBox, QLabel, QFrame
-from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QPushButton
+from PyQt6.QtCore import Qt, QSize, QRectF
+from PyQt6.QtGui import QColor, QPainter, QFont
+from PyQt6.QtPrintSupport import QPrinter, QPrintDialog
 from logic.iching import IChing
-from ui.hexagram_widget import HexagramWidget
+from ui.hexagram_diagram import HexagramDiagram
+from ui.hexagram_print_service import HexagramPrintService
 
 class HexagramDiagramTestWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("卦象图示测试窗口")
-        self.setGeometry(100, 100, 800, 400)
+        self.setWindowTitle("Hexagram Diagram Test")
+        self.setGeometry(100, 100, 300, 750)  # 增加窗口高度
 
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
-        main_layout = QHBoxLayout(central_widget)
+        layout = QVBoxLayout(central_widget)
 
-        # 左侧布局
-        left_widget = QFrame()
-        left_widget.setFrameShape(QFrame.Shape.Box)
-        left_widget.setLineWidth(2)
-        left_widget.setStyleSheet("QFrame { border: 2px solid black; }")
-        left_layout = QVBoxLayout(left_widget)
-        self.hexagram_widget = HexagramWidget(None)
-        self.hexagram_widget.setFixedSize(200, 300)  # 设置固定大小
-        left_layout.addWidget(self.hexagram_widget, alignment=Qt.AlignmentFlag.AlignCenter)
-        main_layout.addWidget(left_widget)
+        # 确保 HEXAGRAMS 是一个列表
+        self.hexagrams = list(IChing.HEXAGRAMS)
 
-        # 右侧布局
-        right_widget = QWidget()
-        right_layout = QVBoxLayout(right_widget)
-        
-        self.hexagram_selector = QComboBox()
-        self.hexagram_selector.addItems([f"{h.number}-{h.name}（{h.mnemonic}）" for h in IChing.HEXAGRAMS])
-        self.hexagram_selector.currentIndexChanged.connect(self.update_hexagram_display)
-        right_layout.addWidget(self.hexagram_selector)
+        # 创建 HexagramDiagram，并明确指定 yang_color
+        yang_color = QColor(255, 0, 0)  # 定义阳爻颜色为红色
+        self.hexagram_diagram = HexagramDiagram(yang_color=yang_color)
+        self.hexagram_diagram.setFixedSize(250, 400)  # 增加大小以便更好地观察
 
-        self.hexagram_info = QLabel()
-        self.hexagram_info.setAlignment(Qt.AlignmentFlag.AlignTop)
-        self.hexagram_info.setWordWrap(True)
-        right_layout.addWidget(self.hexagram_info)
+        layout.addWidget(self.hexagram_diagram, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        right_layout.addStretch()
-        main_layout.addWidget(right_widget)
+        # 添加卦象信息标签
+        self.info_label = QLabel()
+        self.info_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(self.info_label)
 
-        self.update_hexagram_display(0)
+        # 添加一个按钮来随机选择新的卦象
+        self.random_button = QPushButton("随机选择卦象")
+        self.random_button.clicked.connect(self.select_random_hexagram)
+        layout.addWidget(self.random_button)
 
-    def update_hexagram_display(self, index):
-        hexagram = IChing.HEXAGRAMS[index]
-        self.hexagram_widget.update_hexagram(hexagram)
+        # 添加打印按钮
+        self.print_button = QPushButton("打印当前卦象")
+        self.print_button.clicked.connect(self.print_hexagram)
+        layout.addWidget(self.print_button)
+
+        self.select_random_hexagram()
+        self.print_service = HexagramPrintService()
+
+    def select_random_hexagram(self):
+        random_hexagram = random.choice(self.hexagrams)
+        self.hexagram_diagram.update_hexagram(random_hexagram)
+        self.update_hexagram_info(random_hexagram)
+        self.hexagram_diagram.update()  # 强制更新卦象图
+
+    def update_hexagram_info(self, hexagram):
         info_text = f"卦名: {hexagram.name}\n"
         info_text += f"序号: {hexagram.number}\n"
         info_text += f"二进制: {hexagram.binary}\n"
@@ -56,13 +62,17 @@ class HexagramDiagramTestWindow(QMainWindow):
         info_text += f"助记词: {hexagram.mnemonic}\n"
         info_text += f"宫位: {hexagram.palace}\n"
         info_text += f"描述: {hexagram.description}\n"
-        self.hexagram_info.setText(info_text)
+        self.info_label.setText(info_text)
 
-def run_test():
+    def print_hexagram(self):
+        if self.hexagram_diagram.hexagram:
+            self.print_service.print_hexagram(self.hexagram_diagram.hexagram, self)
+
+def main():
     app = QApplication(sys.argv)
     window = HexagramDiagramTestWindow()
     window.show()
     sys.exit(app.exec())
 
 if __name__ == "__main__":
-    run_test()
+    main()

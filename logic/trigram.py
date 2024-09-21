@@ -21,6 +21,10 @@ class Trigrams:
     ]
 
     @staticmethod
+    def get_all_trigrams(is_upper=True):
+        return Trigrams.TRIGRAMS if is_upper else list(reversed(Trigrams.TRIGRAMS))
+
+    @staticmethod
     def get_trigram_by_binary(binary):
         return next((t for t in Trigrams.TRIGRAMS if t.binary == binary), None)
 
