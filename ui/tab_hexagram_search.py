@@ -14,11 +14,11 @@ class TabHexagramSearch(QWidget):
         search_layout = QHBoxLayout()
         self.search_input = QLineEdit()
         self.search_input.setStyleSheet("font-size: 16px;")  # 增大输入框字体
-        search_button = QPushButton("搜索")
-        search_button.setStyleSheet("font-size: 16px;")  # 增大按钮字体
-        search_button.clicked.connect(self.search_hexagrams)
+        self.search_button = QPushButton(self.tr("Search"))
+        self.search_button.setStyleSheet("font-size: 16px;")  # 增大按钮字体
+        self.search_button.clicked.connect(self.search_hexagrams)
         search_layout.addWidget(self.search_input)
-        search_layout.addWidget(search_button)
+        search_layout.addWidget(self.search_button)
         layout.addLayout(search_layout)
 
         self.search_results = QVBoxLayout()
@@ -42,6 +42,10 @@ class TabHexagramSearch(QWidget):
                 result_widget = HexagramWidget(hexagram)
                 self.search_results.addWidget(result_widget)
         else:
-            no_result_label = QLabel("未找到匹配的卦象")
+            no_result_label = QLabel(self.tr("No matching hexagrams found"))
             no_result_label.setStyleSheet("font-size: 16px;")
             self.search_results.addWidget(no_result_label)
+
+    def retranslateUi(self):
+        self.search_button.setText(self.tr("Search"))
+        # 更新其他任何需要翻译的文本元素

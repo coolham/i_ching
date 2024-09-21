@@ -56,13 +56,16 @@ class Tab8Trigrams(QWidget):
         # 模式选择
         mode_layout = QHBoxLayout()
         self.mode_group = QButtonGroup(self)
-        self.name_to_image_mode = QRadioButton("名称匹配图像")
-        self.image_to_name_mode = QRadioButton("图像匹配名称")
+        self.name_to_image_mode = QRadioButton(self.tr("Name to Image"))
+        self.image_to_name_mode = QRadioButton(self.tr("Image to Name"))
         self.mode_group.addButton(self.name_to_image_mode)
         self.mode_group.addButton(self.image_to_name_mode)
         mode_layout.addWidget(self.name_to_image_mode)
         mode_layout.addWidget(self.image_to_name_mode)
         layout.addLayout(mode_layout)
+
+        # 连接模式切换信号
+        self.mode_group.buttonClicked.connect(self.new_question)
 
         # 问题显示区域
         self.question_label = QLabel()
@@ -96,6 +99,12 @@ class Tab8Trigrams(QWidget):
         self.new_question()
 
     def new_question(self):
+        # 移除旧的问题部件（如果存在）
+        if hasattr(self, 'question_widget'):
+            self.layout().removeWidget(self.question_widget)
+            self.question_widget.deleteLater()
+            del self.question_widget
+
         self.clear_layout(self.answer_layout)
         self.result_label.clear()
         self.current_trigram = random.choice(self.trigrams)
@@ -106,7 +115,7 @@ class Tab8Trigrams(QWidget):
             self.setup_image_to_name_question()
 
     def setup_name_to_image_question(self):
-        self.question_label.setText(f"请选择代表 '{self.current_trigram.name}' 的卦象：")
+        self.question_label.setText(self.tr(f"Please select the trigram for '{self.current_trigram.name}':"))
         options = random.sample(self.trigrams, 8)
         for i, trigram in enumerate(options):
             diagram = TrigramDiagram(trigram)
@@ -119,11 +128,8 @@ class Tab8Trigrams(QWidget):
             self.answer_layout.addWidget(button, i // 4, i % 4)
 
     def setup_image_to_name_question(self):
-        self.question_label.setText("请选择下面卦象的正确名称：")
-        
-        # 创建一个新的 QWidget 来容纳卦象图和问题文本
-        question_widget = QWidget()
-        question_layout = QVBoxLayout(question_widget)
+        self.question_widget = QWidget()
+        question_layout = QVBoxLayout(self.question_widget)
         
         # 添加卦象图
         diagram = TrigramDiagram(self.current_trigram)
@@ -131,13 +137,13 @@ class Tab8Trigrams(QWidget):
         question_layout.addWidget(diagram, alignment=Qt.AlignmentFlag.AlignCenter)
         
         # 添加问题文本
-        question_text = QLabel("这个卦象的名称是？")
+        question_text = QLabel(self.tr("What is the name of this trigram?"))
         question_text.setAlignment(Qt.AlignmentFlag.AlignCenter)
         question_text.setFont(QFont("Arial", 14))
         question_layout.addWidget(question_text)
         
         # 将问题部件添加到主布局
-        self.layout().insertWidget(1, question_widget)  # Insert after mode selection
+        self.layout().insertWidget(1, self.question_widget)
         
         # 创建答案按钮
         options = random.sample(self.trigrams, 8)
@@ -152,12 +158,18 @@ class Tab8Trigrams(QWidget):
 
     def check_answer(self, selected_trigram):
         if selected_trigram.binary == self.current_trigram.binary:
-            self.result_label.setText("回答正确！")
+            self.result_label.setText(self.tr("Correct answer!"))
         else:
-            self.result_label.setText(f"回答错误。正确答案是：{self.current_trigram.name} ({self.current_trigram.nature})")
+            self.result_label.setText(self.tr(f"Wrong answer. The correct answer is: {self.current_trigram.name} ({self.current_trigram.nature})"))
 
     def clear_layout(self, layout):
         while layout.count():
             child = layout.takeAt(0)
             if child.widget():
                 child.widget().deleteLater()
+
+    def retranslateUi(self):
+        self.name_to_image_mode.setText(self.tr("Name to Image"))
+        self.image_to_name_mode.setText(self.tr("Image to Name"))
+        self.next_button.setText(self.tr("Next Question"))
+        # 更新其他任何需要翻译的文本元素

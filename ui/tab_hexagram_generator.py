@@ -22,10 +22,10 @@ class TabHexagramGenerator(QWidget):
         self.description_label.setStyleSheet("font-size: 28px; margin-top: 40px;")  # 进一步增大字体大小
         layout.addWidget(self.description_label)
 
-        generate_button = QPushButton("生成卦象")
-        generate_button.setStyleSheet("font-size: 28px; padding: 20px;")  # 进一步增大按钮字体和内边距
-        generate_button.clicked.connect(self.generate_hexagram)
-        layout.addWidget(generate_button, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.generate_button = QPushButton(self.tr("Generate Hexagram"))
+        self.generate_button.setStyleSheet("font-size: 28px; padding: 20px;")  # 进一步增大按钮字体和内边距
+        self.generate_button.clicked.connect(self.generate_hexagram)
+        layout.addWidget(self.generate_button, alignment=Qt.AlignmentFlag.AlignCenter)
 
         layout.addStretch(1)  # 添加弹性空间，使控件集中在顶部
 
@@ -33,3 +33,7 @@ class TabHexagramGenerator(QWidget):
         hexagram = IChing.generate_random_hexagram()
         self.result_widget.update_hexagram(hexagram)
         self.description_label.setText(f"{hexagram.name} - {hexagram.mnemonic}\n\n{hexagram.description}")
+
+    def retranslateUi(self):
+        self.generate_button.setText(self.tr("Generate Hexagram"))
+        # 如果有其他需要翻译的文本，也在这里更新

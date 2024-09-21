@@ -38,3 +38,8 @@ class HexagramWidget(QWidget):
 
     def sizeHint(self):
         return QSize(200, 300)  # 调整建议尺寸
+
+    def update_text(self):
+        if self.hexagram:
+            self.name_label.setText(self.tr(self.hexagram.name))
+            self.setToolTip(self.tr(f"{self.hexagram.name} - {self.hexagram.mnemonic}"))
