@@ -32,7 +32,7 @@ class HexagramWidget(QWidget):
         self.hexagram = hexagram
         self.diagram.update_hexagram(hexagram)
         self.name_label.setText(hexagram.name)
-        self.setToolTip(f"{hexagram.name} - {hexagram.description}")
+        self.setToolTip(f"{hexagram.name} - {hexagram.mnemonic}")
 
     def widget_clicked(self, event):
         if self.hexagram:

@@ -7,6 +7,7 @@ from ui.hexagram_detail_dialog import HexagramDetailDialog
 class Tab64Hexagrams(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.hexagrams = IChing.HEXAGRAMS  # 添加这行
         self.setup_ui()
 
     def setup_ui(self):
@@ -23,7 +24,7 @@ class Tab64Hexagrams(QWidget):
         hexagrams = IChing.HEXAGRAMS
         for i in range(8):
             for j in range(8):
-                index = 63 - (i * 8 + j)
+                index = (i * 8 + j)
                 if 0 <= index < len(hexagrams):
                     hexagram = hexagrams[index]
                     hexagram_widget = HexagramWidget(hexagram)
@@ -33,3 +34,12 @@ class Tab64Hexagrams(QWidget):
     def on_hexagram_clicked(self, hexagram):
         dialog = HexagramDetailDialog(hexagram, self)
         dialog.exec()
+
+    def get_printable_content(self):
+        content = "<h1>64卦</h1>"
+        for hexagram in self.hexagrams:
+            content += f"<h2>{hexagram.name}</h2>"
+            content += f"<p>卦象：{''.join(['▅▅' if line else '▅▅ ▅▅' for line in hexagram.lines])}</p>"
+            content += f"<p>卦辞：{hexagram.description}</p>"
+            content += "<hr>"
+        return content
